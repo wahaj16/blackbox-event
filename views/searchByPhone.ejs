@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Search Visitor by Phone Number</title>
+  <link rel="stylesheet" href="/stylesheets/searchByPhone.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <img src="/images/name1.jpeg" alt="Company Logo" class="logo">
+    </header>
+    <main>
+      <h1>Search Visitor by Phone Number</h1>
+      <form id="searchForm">
+        <div class="form-group">
+          <label for="phoneNumber">Phone Number:</label>
+          <input type="tel" id="phoneNumber" name="phoneNumber" required>
+        </div>
+        <button type="submit">Search</button>
+      </form>
+      <div id="visitorDetails" class="hidden">
+        <h2>Visitor Details</h2>
+        <div id="detail">
+          <p><strong></strong> <span id="visitorName"></span></p>
+          <p><strong></strong> <span id="visitorOccupation"></span></p>
+          <p><strong></strong> <span id="visitorDesignation"></span></p>
+        </div>
+        <button onclick="printDetail(this)">print</button>
+      </div>
+    </main>
+    <footer>
+      <p>&copy; 2024 Blackbox All rights reserved</p>
+    </footer>
+  </div>
+
+  <script> 
+    let detail;
+    document.getElementById('searchForm').addEventListener('submit', async function(event) {
+      event.preventDefault();
+      const phoneNumber = document.getElementById('phoneNumber').value;
+      const response = await fetch(`/searchVisitor/${phoneNumber}`);
+      if (response.ok) {
+        const visitor = await response.json();
+        detail=visitor;
+        console.log(visitor);
+        document.getElementById('visitorName').innerText = visitor.name;
+        document.getElementById('visitorOccupation').innerText = visitor.occupation;
+        document.getElementById('visitorDesignation').innerText = visitor.designation;
+        document.getElementById('visitorDetails').classList.remove('hidden');
+      } else {
+        alert('Visitor not found');
+      }
+    });
+
+    function printDetail(ele) {
+      var contentToPrint = document.getElementById("detail") // Use previousElementSibling for correct targeting
+      var openWindow = window.open("", "PrintWindow");
+      
+      openWindow.document.write(`<html><head><title>Print</title></head><body  style="text-align:center;"><h1>${detail.name}</h1><strong>${detail.occupation}</strong><br><strong>${detail.designation}</strong>
+         <style>
+        body {
+            margin: 0;
+            height: 70vh;
+            display: flex;
+            flex-direction:column;
+            justify-content: center;
+            align-items: center;
+           max-height:40%;
+        }
+
+        .center-text {
+            text-align: center;
+        }
+    </style>`);
+      openWindow.document.write("</body></html>");
+      openWindow.document.close();
+      
+      // Use a timeout to ensure the content is fully loaded before printing
+      setTimeout(function() {
+          openWindow.focus();
+          openWindow.print();
+          openWindow.close();
+      }, 500); // Adjust timing as necessary
+  }
+  </script>
+</body>
+</html>
